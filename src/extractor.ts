@@ -27,18 +27,18 @@ export function extractMessage(el: Element, index: number) {
 
   const clonedEl = el.cloneNode(true) as HTMLElement;
 
-  let textEl: Element | null = null;
+  let chatEl: Element | null = null;
   if (role === "user") {
-    textEl = el.querySelector(".whitespace-pre-wrap");
+    chatEl = clonedEl.querySelector(".whitespace-pre-wrap");
   } else if (role === "assistant") {
-    textEl = el.querySelector(".markdown");
+    chatEl = clonedEl.querySelector(".markdown");
   }
-  if (!textEl) {
+  if (!chatEl) {
     return null;
   }
 
   const codes: Code[] = [];
-  const preEls = clonedEl.querySelectorAll("pre");
+  const preEls = chatEl.querySelectorAll("pre");
 
   preEls.forEach((preEl, i) => {
     const codeEl = preEl.querySelector("code");
@@ -59,7 +59,7 @@ export function extractMessage(el: Element, index: number) {
     preEl.replaceWith(placeholder);
   });
 
-  const html = textEl.innerHTML;
+  const html = chatEl.innerHTML;
   const markdown = optimizedMarkdown(html);
 
   const message: Message = {

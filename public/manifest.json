@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "ChatGPT Smart Export",
   "description": "Export ChatGPT logs as structured, compressed, and AI-friendly data.",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "permissions": ["scripting", "downloads", "activeTab"],
   "icons": {
     "16": "16.png",
@@ -11,7 +11,7 @@
     "128": "128.png"
   },
   "action": {
-    "default_title": "Export Chat"
+    "default_title": "ChatGPT Smart Export"
   },
   "background": {
     "service_worker": "background.js"
