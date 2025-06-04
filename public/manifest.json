@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "ChatGPT Smart Export",
   "description": "Export ChatGPT logs as structured, compressed, and AI-friendly data.",
-  "version": "1.0",
+  "version": "1.0.0",
   "permissions": ["scripting", "downloads", "activeTab"],
   "icons": {
     "16": "16.png",
@@ -22,6 +22,5 @@
       "js": ["content.js"],
       "run_at": "document_idle"
     }
-  ],
-  "host_permissions": ["https://chat.openai.com/*"]
+  ]
 }

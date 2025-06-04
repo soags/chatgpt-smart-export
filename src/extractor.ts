@@ -1,7 +1,7 @@
 import TurndownService from "turndown";
 import { Chat, Code, Message } from "./types";
 
-export function extractChatLog(chatId: string): Chat {
+export function extractChatLog(): Chat {
   const chatElements = document.querySelectorAll("[data-message-author-role]");
 
   const messages: Message[] = [];
@@ -14,7 +14,8 @@ export function extractChatLog(chatId: string): Chat {
   });
 
   return {
-    id: chatId,
+    id: chatId(),
+    title: document.title || "Untitled Chat",
     messages,
   };
 }
@@ -100,4 +101,9 @@ function optimizedMarkdown(html: string): string {
     .trim();
 
   return cleaned;
+}
+
+function chatId(): string {
+  const match = window.location.href.match(/\/c\/([a-f0-9\-]{36})/);
+  return match ? match[1] : "unknown";
 }
