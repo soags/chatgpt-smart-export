@@ -7,6 +7,7 @@ import {
   SectionVariant,
 } from "../types/section";
 import { minifyText } from "../utils/minify";
+import { extractAssistantInlineSpans } from "./extractAssistantInlineSpans";
 
 export function parseAssistantMessage(
   root: Element,
@@ -37,7 +38,11 @@ export function parseAssistantMessage(
       });
     } else if (node.tagName === "P") {
       // <p>
-      sections.push({ type: "paragraph", text: minifyText(node) });
+      sections.push({ 
+        type: "paragraph", 
+        text: minifyText(node),
+        spans: extractAssistantInlineSpans(node)
+      });
     } else if (node.tagName === "BLOCKQUOTE") {
       // <q>
       sections.push({ type: "quote", text: minifyText(node) });

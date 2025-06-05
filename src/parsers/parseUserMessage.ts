@@ -4,7 +4,7 @@ import { Root, Paragraph, Heading, Code, List, Blockquote, Table, TableRow, Tabl
 import { UserMessage } from "../types/chat";
 import { SectionVariant } from "../types/section";
 import { toString } from 'mdast-util-to-string';
-import { extractInlineSpans } from "./extractInlineSpans";
+import { extractUserInlineSpans } from "./extractUserInlineSpans";
 
 export function parseUserMessage(
   root: Element,
@@ -32,7 +32,7 @@ export function parseUserMessage(
         sections.push({
           type: "paragraph",
           text: toString(p),
-          spans: extractInlineSpans(p.children),
+          spans: extractUserInlineSpans(p.children),
         });
         break;
       }

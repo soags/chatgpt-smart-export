@@ -1,7 +1,7 @@
 import { PhrasingContent } from "mdast";
 import { InlineSpan } from "../types/span";
 
-export function extractInlineSpans(children: PhrasingContent[]): InlineSpan[] {
+export function extractUserInlineSpans(children: PhrasingContent[]): InlineSpan[] {
   const spans: InlineSpan[] = [];
 
   for (const node of children) {
