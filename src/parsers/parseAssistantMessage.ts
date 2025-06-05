@@ -6,7 +6,6 @@ import {
   listStyles,
   SectionVariant,
 } from "../types/section";
-import { minifyText } from "../utils/minify";
 import { extractAssistantInlineSpans } from "./extractAssistantInlineSpans";
 
 export function parseAssistantMessage(
@@ -34,21 +33,21 @@ export function parseAssistantMessage(
       sections.push({
         type: "heading",
         level,
-        text: minifyText(node),
+        text: node.textContent ?? "",
       });
     } else if (node.tagName === "P") {
       // <p>
       sections.push({ 
         type: "paragraph", 
-        text: minifyText(node),
+        text: node.textContent ?? "",
         spans: extractAssistantInlineSpans(node)
       });
     } else if (node.tagName === "BLOCKQUOTE") {
       // <q>
-      sections.push({ type: "quote", text: minifyText(node) });
+      sections.push({ type: "quote", text: node.textContent ?? "" });
     } else if (node.tagName === "UL" || node.tagName === "OL") {
       // <ul> or <ol>
-      const items = [...node.querySelectorAll("li")].map((li) => minifyText(li));
+      const items = [...node.querySelectorAll("li")].map((li) => li.textContent ?? "");
       const listStyle = node.tagName.toLowerCase();
       if (!isListStyle(listStyle)) {
         continue;
