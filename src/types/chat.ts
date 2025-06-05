@@ -14,9 +14,7 @@ export type Message = {
 
 export type UserMessage = Message & {
   role: "user",
-  content: string
-  rawTextContent: string
-  rawHtml: string
+  sections: SectionVariant[]
 }
 
 export type AssistantMessage = Message & {

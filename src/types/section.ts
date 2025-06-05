@@ -32,6 +32,12 @@ export type Quote = Section & {
   text: string;
 };
 
+export type Table = Section & {
+  type: "table";
+  headers: string[];
+  rows: string[][];
+};
+
 export type Code = Section & {
   type: "code";
   language: string;
@@ -47,5 +53,6 @@ export type SectionVariant =
   | Heading
   | List
   | Quote
+  | Table
   | Code
   | Separator;
