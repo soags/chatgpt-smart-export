@@ -1,5 +1,16 @@
 import { InlineSpan } from "./span";
 
+export type SectionVariant =
+  | Paragraph
+  | Heading
+  | List
+  | Quote
+  | Table
+  | Code
+  | Separator
+  | Image
+  | Math;
+
 export type Section = {
   type: string;
 };
@@ -23,12 +34,17 @@ export const headingLevels: HeadingLevel[] = [1, 2, 3, 4, 5, 6];
 export type List = Section & {
   type: "list";
   style: ListStyle;
-  items: string[];
+  items: (string | ChecklistListItem)[];
 };
 
-export type ListStyle = "ul" | "ol";
+export type ChecklistListItem = {
+  text: string;
+  checked: boolean;
+};
 
-export const listStyles: ListStyle[] = ["ul", "ol"];
+export type ListStyle = "unordered" | "ordered" | "checklist";
+
+export const listStyles: ListStyle[] = ["unordered", "ordered", "checklist"];
 
 export type Quote = Section & {
   type: "quote";
@@ -51,11 +67,14 @@ export type Separator = Section & {
   type: "separator";
 };
 
-export type SectionVariant =
-  | Paragraph
-  | Heading
-  | List
-  | Quote
-  | Table
-  | Code
-  | Separator;
+export type Image = Section & {
+  type: "image";
+  alt: string;
+  url: string;
+};
+
+export type Math = Section & {
+  type: "math";
+  content: string;
+  display: "inline" | "block";
+};

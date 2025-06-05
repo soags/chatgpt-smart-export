@@ -1,9 +1,12 @@
 export type InlineSpan =
+  | PlainTextSpan
   | InlineCodeSpan
   | LinkSpan
   | BoldSpan
-  | ItalicSpan
-  | PlainTextSpan;
+  | ItalicSpan  
+  | StrikethroughSpan
+  | MathSpan
+  | ImageSpan;
 
 export type PlainTextSpan = {
   type: "text";
@@ -29,4 +32,21 @@ export type BoldSpan = {
 export type ItalicSpan = {
   type: "italic";
   text: string;
+};
+
+export type StrikethroughSpan = {
+  type: "strikethrough";
+  text: string;
+};
+
+export type MathSpan = {
+  type: "math";
+  content: string;
+  display: "inline";
+};
+
+export type ImageSpan = {
+  type: "image";
+  alt: string;
+  url: string;
 };

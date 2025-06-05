@@ -10,18 +10,26 @@ import {
   Table,
   TableRow,
   TableCell,
+  Image,
+  ListItem,
 } from "mdast";
-import { SectionVariant } from "../types/section";
+import { ChecklistListItem, ListStyle, SectionVariant } from "../types/section";
 import { toString } from "mdast-util-to-string";
 import { extractUserInlineSpans } from "./extractUserInlineSpans";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 
 export function parseMdastToSections(html: string): SectionVariant[] {
-  const tree = unified().use(remarkParse).use(remarkGfm).parse(html);
+  const tree = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkMath)
+    .parse(html);
 
   const sections: SectionVariant[] = [];
 
   for (const node of tree.children) {
+    console.log(`parseMdastToSections: section:${node.type}`)
     switch (node.type) {
       case "heading": {
         const h = node as Heading;
@@ -55,15 +63,37 @@ export function parseMdastToSections(html: string): SectionVariant[] {
 
       case "list": {
         const l = node as List;
-        const items = l.children.map((li) => {
-          const firstParagraph = li.children.find(
-            (n) => n.type === "paragraph"
-          ) as Paragraph | undefined;
-          return firstParagraph ? toString(firstParagraph) : "(list item)";
-        });
+
+        const checklistItems: ChecklistListItem[] = [];
+        const regularItems: string[] = [];
+
+        for (const item of l.children) {
+          const li = item as ListItem;
+          const text = toString(li);
+
+          if (typeof li.checked === "boolean") {
+            checklistItems.push({
+              text,
+              checked: li.checked,
+            });
+          } else {
+            regularItems.push(text);
+          }
+        }
+
+        let items;
+        let style: ListStyle;
+        if (checklistItems.length > 0) {
+          style = "checklist";
+          items = checklistItems;
+        } else {
+          style = l.ordered ? "ordered" : "unordered";
+          items = regularItems;
+        }
+
         sections.push({
           type: "list",
-          style: l.ordered ? "ol" : "ul",
+          style,
           items,
         });
         break;
@@ -104,8 +134,18 @@ export function parseMdastToSections(html: string): SectionVariant[] {
         break;
       }
 
+      case "math": {
+        const m = node as any;
+        sections.push({
+          type: "math",
+          content: m.value,
+          display: "block",
+        });
+        break;
+      }      
+
       default:
-        // 無視 or ログ出力など（html, thematicBreak 等）
+        console.warn("未対応ノード", node.type);
         break;
     }
   }
