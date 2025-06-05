@@ -1,3 +1,5 @@
+import { InlineSpan } from "./span";
+
 export type Section = {
   type: string;
 };
@@ -5,6 +7,7 @@ export type Section = {
 export type Paragraph = Section & {
   type: "paragraph";
   text: string;
+  spans?: InlineSpan[];
 };
 
 export type Heading = Section & {
