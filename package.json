@@ -2,16 +2,22 @@
   "name": "chatgpt-smart-export",
   "version": "1.0.2",
   "scripts": {
-    "build": "node esbuild.config.js"
+    "build": "node esbuild.config.js",
+    "test": "vitest"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.326",
+    "@types/node": "^22.15.29",
     "esbuild": "^0.25.5",
     "esbuild-plugin-copy": "^2.1.1",
-    "typescript": "^5.8.3"
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.2"
   },
   "dependencies": {
     "mdast-util-to-string": "^4.0.0",
+    "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "turndown": "^7.2.0",
     "unified": "^11.0.5",
