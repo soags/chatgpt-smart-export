@@ -16,8 +16,7 @@ function mdToSections(md: string) {
 
 describe("parseMdastToSections", () => {
   const sections = mdToSections(markdown);
-  console.log(JSON.stringify(sections, null, 2));
-
+  
   it("should parse sections without error", () => {
     expect(sections.length).toBeGreaterThan(0);
   });

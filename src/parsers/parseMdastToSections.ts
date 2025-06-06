@@ -29,7 +29,6 @@ export function parseMdastToSections(html: string): SectionVariant[] {
   const sections: SectionVariant[] = [];
 
   for (const node of tree.children) {
-    console.log(`parseMdastToSections: section:${node.type}`)
     switch (node.type) {
       case "heading": {
         const h = node as Heading;
