@@ -1,7 +1,10 @@
 import { PhrasingContent } from "mdast";
 import { InlineSpan } from "../types/span";
+import { toString } from "mdast-util-to-string";
 
-export function extractUserInlineSpans(children: PhrasingContent[]): InlineSpan[] {
+export function extractUserInlineSpans(
+  children: PhrasingContent[]
+): InlineSpan[] {
   const spans: InlineSpan[] = [];
 
   for (const node of children) {
@@ -12,6 +15,13 @@ export function extractUserInlineSpans(children: PhrasingContent[]): InlineSpan[
 
       case "inlineCode":
         spans.push({ type: "code", text: node.value });
+        break;
+
+      case "delete":
+        spans.push({
+          type: "strikethrough",
+          text: toString(node),
+        });
         break;
 
       case "link":
@@ -42,9 +52,29 @@ export function extractUserInlineSpans(children: PhrasingContent[]): InlineSpan[
         });
         break;
 
+      
+      case "image": {
+        const img = node;
+        spans.push({
+          type: "image",
+          alt: img.alt ?? "",
+          url: img.url,
+        });
+        break;
+      }
+
+      case "inlineMath": {
+        const m = node as any;
+        spans.push({
+          type: "math",
+          content: m.value,
+          display: "inline",
+        });
+        break;
+      }
+
       default:
-        // fallback: attempt to extract text if unknown type
-        spans.push({ type: "text", text: (node as any).value || "" });
+        console.warn("未対応ノード", node.type);
         break;
     }
   }
