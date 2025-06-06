@@ -1,12 +1,7 @@
 import { AssistantMessage } from "../types/chat";
-import {
-  HeadingLevel,
-  headingLevels,
-  ListStyle,
-  listStyles,
-  SectionVariant,
-} from "../types/section";
-import { extractAssistantInlineSpans } from "./extractAssistantInlineSpans";
+import { SectionVariant } from "../types/section";
+import { normalizeChatDom } from "./normalizeChatDom";
+import { parseMdastToSections } from "./parseMdastToSections";
 
 export function parseAssistantMessage(
   root: Element,
@@ -14,64 +9,14 @@ export function parseAssistantMessage(
   id?: string,
   model?: string
 ): AssistantMessage {
-  const sections: SectionVariant[] = [];
+  // DOM正規化（ChatGPT UIの構造 → Markdown構文に近づける）
+  const normalized = normalizeChatDom(root as HTMLElement);
 
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+  // 正規化されたDOMから Markdown互換の innerHTML を取得
+  const markdownInput = normalized.innerHTML;
 
-  while (walker.nextNode()) {
-    const node = walker.currentNode as HTMLElement;
-
-    if (node.tagName === "HR") {
-      // <hr>
-      sections.push({ type: "separator" });
-    } else if (/^H[1-6]$/.test(node.tagName)) {
-      // <h1> ~ <h6>
-      const level = parseInt(node.tagName[1]);
-      if (!isHeadingLevel(level)) {
-        continue;
-      }
-      sections.push({
-        type: "heading",
-        level,
-        text: node.textContent ?? "",
-      });
-    } else if (node.tagName === "P") {
-      // <p>
-      sections.push({ 
-        type: "paragraph", 
-        text: node.textContent ?? "",
-        spans: extractAssistantInlineSpans(node)
-      });
-    } else if (node.tagName === "BLOCKQUOTE") {
-      // <q>
-      sections.push({ type: "quote", text: node.textContent ?? "" });
-    } else if (node.tagName === "UL" || node.tagName === "OL") {
-      // <ul> or <ol>
-      const items = [...node.querySelectorAll("li")].map((li) => li.textContent ?? "");
-      const listStyle = node.tagName.toLowerCase();
-      if (!isListStyle(listStyle)) {
-        continue;
-      }
-      sections.push({ type: "list", style: listStyle, items });
-    } else if (node.matches("pre code")) {
-      // <code>
-      const lang = node.className.match(/language-(\w+)/)?.[1] || "plaintext";
-
-      const rootSpan = node.querySelector("span");
-      if (!rootSpan) {
-        continue;
-      }
-      const content = [...rootSpan.querySelectorAll(":scope > span")]
-        .map((line) => line.textContent?.trimEnd() ?? "")
-        .join("\n");
-
-      sections.push({
-        type: "code",
-        language: lang,
-        content,
-      });
-    }
-  }
+  // HTML->markdown->AST->構造化セクションに変換
+  const sections: SectionVariant[] = parseMdastToSections(markdownInput);
 
   return {
     index,
@@ -80,14 +25,4 @@ export function parseAssistantMessage(
     sections,
     model,
   };
-}
-
-function isHeadingLevel(value: unknown): value is HeadingLevel {
-  return (
-    typeof value === "number" && headingLevels.includes(value as HeadingLevel)
-  );
-}
-
-function isListStyle(value: unknown): value is ListStyle {
-  return typeof value === "string" && listStyles.includes(value as ListStyle);
 }
