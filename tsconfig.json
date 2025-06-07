@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "esModuleInterop": true,
-    "strict": true,
-    "types": ["node", "vitest"]
-  }
+    "strict": true    
+  },
+  "include": ["src"]
 }
