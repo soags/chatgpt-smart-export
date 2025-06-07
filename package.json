@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-smart-export",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "scripts": {
     "build": "node esbuild.config.js",
     "test": "vitest"
