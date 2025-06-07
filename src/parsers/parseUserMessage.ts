@@ -20,26 +20,31 @@ function normalizeUserMarkdown(root: HTMLElement): string {
 
   // pre > code を ```lang ... ``` に書き換える
   for (const codeEl of cloned.querySelectorAll("pre > code")) {
-    const raw = codeEl.textContent || "";
+    const raw = (codeEl.textContent || "").trimStart();
     const [firstLine, ...restLines] = raw.split("\n");
+    const first = firstLine.trim();
 
     let lang: string | undefined;
     let code: string;
-    if (restLines.length > 0 && knownLanguages.includes(firstLine.trim())) {
-      lang = firstLine.trim();
+
+    console.log(raw.split("\n"))
+
+    if (restLines.length > 0 && knownLanguages.includes(first)) {
+      lang = first;
       code = restLines.join("\n");
-    } else if(firstLine.length === 0) {
-      code = [...restLines].join("\n");
     } else {
       code = [firstLine, ...restLines].join("\n");
     }
 
-    const md = lang ? `\`\`\`${lang}\n${code}\n\`\`\`` : `\`\`\`\n${code}\n\`\`\``;
+    const md = lang
+      ? `\`\`\`${lang}\n${code}\n\`\`\``
+      : `\`\`\`\n${code}\n\`\`\``;
+    
     const textNode = document.createTextNode(md);
     const pre = codeEl.closest("pre");
     if (pre && pre.parentNode) {
       pre.parentNode.replaceChild(textNode, pre);
-    }    
+    }
   }
 
   // エンティティをデコード
