@@ -28,7 +28,7 @@ function htmlToMarkdown(element: HTMLElement): string {
   const turndown = new TurndownService({
     headingStyle: "atx",
     codeBlockStyle: "fenced",
-    bulletListMarker: "-",
+    bulletListMarker: "-",    
   });
 
   turndown.use(gfm); 
@@ -54,5 +54,16 @@ function htmlToMarkdown(element: HTMLElement): string {
     },
   });
 
-  return turndown.turndown(element.innerHTML);
+  const turndownOutput = turndown.turndown(element.innerHTML);
+
+  const normalized = normalizeListIndent(turndownOutput)
+
+  return normalized
+}
+
+function normalizeListIndent(md: string): string {
+  return md
+    .replace(/^([-*+])\s{2,}/gm, "$1 ")        // 箇条書き `-   ` → `- `
+    .replace(/^(\d+\.)\s{2,}/gm, "$1 ")        // 番号付き `1.  ` → `1. `
+    .replace(/^([-*+] \[.\])\s{2,}/gm, "$1 "); // チェックリスト `- [ ]  ` → `- [ ] `
 }
