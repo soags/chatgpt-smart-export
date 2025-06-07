@@ -1,3 +1,4 @@
+import { cleanupText } from "../minify/creanupText";
 import { normalizePreCodeBlocksUser } from "../transforms/normalizePreCodeBlocksUser";
 import { UserMessage } from "../types";
 import { decodeHtmlEntities } from "../utils/markdownNormalize";
@@ -11,7 +12,7 @@ export function parseUserMessage(
   
   normalizePreCodeBlocksUser(cloned);
   
-  const content = decodeHtmlEntities(cloned.innerHTML);
+  const content = cleanupText(decodeHtmlEntities(cloned.innerHTML));
   
   return {
     index,

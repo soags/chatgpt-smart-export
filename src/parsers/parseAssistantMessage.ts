@@ -7,6 +7,7 @@ import {
 } from "../utils/markdownNormalize";
 import { normalizePreCodeBlocksAssistant } from "../transforms/normalizePreCodeBlocksAssistant";
 import { normalizeTableAssistant } from "../transforms/normalizeTableAssistant";
+import { cleanupText } from "../minify/creanupText";
 
 export function parseAssistantMessage(
   root: Element,
@@ -21,13 +22,13 @@ export function parseAssistantMessage(
   normalizePreCodeBlocksAssistant(cloned);  
 
   const markdown = htmlToMarkdown(cloned.innerHTML);
-  const normalized = normalizeListIndent(markdown);
+  const content = cleanupText(normalizeListIndent(markdown));
 
   return {
     index,
     id,
     role: "assistant",
-    content: normalized,
+    content,
     model,
   };
 }
