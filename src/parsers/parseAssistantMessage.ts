@@ -1,6 +1,6 @@
 import TurndownService from "turndown";
 import { gfm } from "@joplin/turndown-plugin-gfm";
-import { AssistantMessage } from "../types/chat";
+import { AssistantMessage } from "../types";
 import {
   normalizeKaTeX,
   normalizeListIndent,

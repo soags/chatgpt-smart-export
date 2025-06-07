@@ -1,5 +1,5 @@
 import { normalizePreCodeBlocksUser } from "../transforms/normalizePreCodeBlocksUser";
-import { UserMessage } from "../types/chat";
+import { UserMessage } from "../types";
 import { decodeHtmlEntities } from "../utils/markdownNormalize";
 
 export function parseUserMessage(

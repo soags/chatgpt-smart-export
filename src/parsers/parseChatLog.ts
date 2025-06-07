@@ -1,4 +1,4 @@
-import { ChatLog, MessageVariant } from "../types/chat";
+import { ChatLog, MessageVariant } from "../types";
 import { parseMessage } from "./parseMessage";
 
 export function parseChatLog(): ChatLog {
