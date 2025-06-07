@@ -1,5 +1,3 @@
-import { extractCode } from "./extractCode";
-
 export function normalizeChatDom(root: HTMLElement): HTMLElement {
   const clone = root.cloneNode(true) as HTMLElement;
 
@@ -7,7 +5,7 @@ export function normalizeChatDom(root: HTMLElement): HTMLElement {
   for (const pre of clone.querySelectorAll("pre")) {
     const code = pre.querySelector("code");
     if (code) {
-      const codeText = extractCode(code);
+      const codeText = extractCodeText(code);
       
       const newPre = document.createElement("pre");
       const newCode = document.createElement("code");
@@ -27,7 +25,24 @@ export function normalizeChatDom(root: HTMLElement): HTMLElement {
     }
   }
 
-  // 他にも必要があればここに追加
-
   return clone;
+}
+
+export function extractCodeText(codeEl: HTMLElement): string {
+  let result = "";
+
+  function walk(node: Node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      result += nodeValue(node);
+    }
+    node.childNodes.forEach(walk);
+  }
+
+  walk(codeEl);
+
+  return result;
+}
+
+function nodeValue(node: Node): string {
+  return (node.nodeValue ?? "").replace(/\r\n/g, "\n");
 }

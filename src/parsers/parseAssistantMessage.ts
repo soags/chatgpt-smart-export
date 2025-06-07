@@ -1,9 +1,7 @@
 import TurndownService from "turndown";
 import { gfm } from '@joplin/turndown-plugin-gfm';
 import { AssistantMessage } from "../types/chat";
-import { SectionVariant } from "../types/section";
 import { normalizeChatDom } from "./normalizeChatDom";
-import { parseMdastToSections } from "./parseMdastToSections";
 
 export function parseAssistantMessage(
   root: Element,
@@ -17,14 +15,11 @@ export function parseAssistantMessage(
   // HTML->markdown
   const markdown = htmlToMarkdown(normalized);  
 
-  // markdown->AST->構造化セクションに変換
-  const sections: SectionVariant[] = parseMdastToSections(markdown);  
-
   return {
     index,
     id,
     role: "assistant",
-    sections,
+    content: markdown,
     model,
   };
 }
