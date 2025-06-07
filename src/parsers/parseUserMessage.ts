@@ -1,114 +1,22 @@
+import { normalizePreCodeBlocksUser } from "../transforms/normalizePreCodeBlocksUser";
 import { UserMessage } from "../types/chat";
+import { decodeHtmlEntities } from "../utils/markdownNormalize";
 
 export function parseUserMessage(
   root: Element,
   index: number,
   id?: string
 ): UserMessage {
-  const markdown = normalizeUserMarkdown(root as HTMLElement);
-
+  const cloned = root.cloneNode(true) as HTMLElement;
+  
+  normalizePreCodeBlocksUser(cloned);
+  
+  const content = decodeHtmlEntities(cloned.innerHTML);
+  
   return {
     index,
     role: "user",
-    content: markdown,
+    content,
     id,
   };
 }
-
-function normalizeUserMarkdown(root: HTMLElement): string {
-  const cloned = root.cloneNode(true) as HTMLElement;
-
-  // pre > code を ```lang ... ``` に書き換える
-  for (const codeEl of cloned.querySelectorAll("pre > code")) {
-    const raw = (codeEl.textContent || "").trimStart();
-    const [firstLine, ...restLines] = raw.split("\n");
-    const first = firstLine.trim();
-
-    let lang: string | undefined;
-    let code: string;
-
-    console.log(raw.split("\n"))
-
-    if (restLines.length > 0 && knownLanguages.includes(first)) {
-      lang = first;
-      code = restLines.join("\n");
-    } else {
-      code = [firstLine, ...restLines].join("\n");
-    }
-
-    const md = lang
-      ? `\`\`\`${lang}\n${code}\n\`\`\``
-      : `\`\`\`\n${code}\n\`\`\``;
-    
-    const textNode = document.createTextNode(md);
-    const pre = codeEl.closest("pre");
-    if (pre && pre.parentNode) {
-      pre.parentNode.replaceChild(textNode, pre);
-    }
-  }
-
-  // エンティティをデコード
-  const content = decodeHtmlEntities(cloned.innerHTML);
-
-  return content;
-}
-
-function decodeHtmlEntities(html: string): string {
-  const textarea = document.createElement("textarea");
-  textarea.innerHTML = html;
-  return textarea.value;
-}
-
-const knownLanguages = [
-  "bash",
-  "sh",
-  "zsh",
-  "c",
-  "cpp",
-  "csharp",
-  "css",
-  "scss",
-  "less",
-  "dart",
-  "dockerfile",
-  "go",
-  "html",
-  "xml",
-  "java",
-  "kotlin",
-  "javascript",
-  "js",
-  "jsx",
-  "json",
-  "lua",
-  "makefile",
-  "markdown",
-  "md",
-  "perl",
-  "php",
-  "plaintext",
-  "text",
-  "txt",
-  "powershell",
-  "ps1",
-  "python",
-  "py",
-  "ruby",
-  "rb",
-  "rust",
-  "rs",
-  "sql",
-  "swift",
-  "toml",
-  "yaml",
-  "yml",
-  "typescript",
-  "ts",
-  "tsx",
-  "vim",
-  "vue",
-  "wasm",
-  "xml",
-  "yaml",
-  "math", // ← GPT特有
-];

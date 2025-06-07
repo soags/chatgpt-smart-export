@@ -1,7 +1,12 @@
 import TurndownService from "turndown";
-import { gfm } from '@joplin/turndown-plugin-gfm';
+import { gfm } from "@joplin/turndown-plugin-gfm";
 import { AssistantMessage } from "../types/chat";
-import { normalizeChatDom } from "./normalizeChatDom";
+import {
+  normalizeKaTeX,
+  normalizeListIndent,
+} from "../utils/markdownNormalize";
+import { normalizePreCodeBlocksAssistant } from "../transforms/normalizePreCodeBlocksAssistant";
+import { normalizeTableAssistant } from "../transforms/normalizeTableAssistant";
 
 export function parseAssistantMessage(
   root: Element,
@@ -9,29 +14,32 @@ export function parseAssistantMessage(
   id?: string,
   model?: string
 ): AssistantMessage {
-  // DOM正規化（ChatGPT UIの構造 → Markdown構文に近づける）
-  const normalized = normalizeChatDom(root as HTMLElement);  
+  const cloned = root.cloneNode(true) as HTMLElement;
 
-  // HTML->markdown
-  const markdown = htmlToMarkdown(normalized);  
+  normalizeKaTeX(cloned);
+  normalizeTableAssistant(cloned)
+  normalizePreCodeBlocksAssistant(cloned);  
+
+  const markdown = htmlToMarkdown(cloned.innerHTML);
+  const normalized = normalizeListIndent(markdown);
 
   return {
     index,
     id,
     role: "assistant",
-    content: markdown,
+    content: normalized,
     model,
   };
 }
 
-function htmlToMarkdown(element: HTMLElement): string {
+function htmlToMarkdown(html: string): string {
   const turndown = new TurndownService({
     headingStyle: "atx",
     codeBlockStyle: "fenced",
-    bulletListMarker: "-",    
+    bulletListMarker: "-",
   });
 
-  turndown.use(gfm); 
+  turndown.use(gfm);
 
   turndown.addRule("emphasis", {
     filter: ["em"],
@@ -42,7 +50,7 @@ function htmlToMarkdown(element: HTMLElement): string {
     filter: (node) =>
       node.nodeName === "INPUT" &&
       (node as HTMLInputElement).type === "checkbox",
-    replacement: (content, node) => {
+    replacement: (_, node) => {
       if (
         node.nodeName === "INPUT" &&
         (node as HTMLInputElement).type === "checkbox"
@@ -50,20 +58,9 @@ function htmlToMarkdown(element: HTMLElement): string {
         const input = node as HTMLInputElement;
         return input.checked ? "[x] " : "[ ] ";
       }
-      return ''
+      return "";
     },
   });
 
-  const turndownOutput = turndown.turndown(element.innerHTML);
-
-  const normalized = normalizeListIndent(turndownOutput)
-
-  return normalized
-}
-
-function normalizeListIndent(md: string): string {
-  return md
-    .replace(/^([-*+])\s{2,}/gm, "$1 ")        // 箇条書き `-   ` → `- `
-    .replace(/^(\d+\.)\s{2,}/gm, "$1 ")        // 番号付き `1.  ` → `1. `
-    .replace(/^([-*+] \[.\])\s{2,}/gm, "$1 "); // チェックリスト `- [ ]  ` → `- [ ] `
+  return turndown.turndown(html);
 }
