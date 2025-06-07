@@ -3,6 +3,91 @@ import { JSDOM } from "jsdom";
 import { parseUserMessage } from "../src/parsers/parseUserMessage";
 
 describe("parseUserMessage", () => {
+  it("parses headings", () => {
+    const dom = new JSDOM(
+      `<div class="whitespace-pre-wrap">## 見出しテスト</div>`
+    );
+    const root = dom.window.document.querySelector("div")!;
+    const { content } = parseUserMessage(root, 0);
+    expect(content).toContain("## 見出しテスト");
+  });
+
+  it("parses checklist items", () => {
+    const html = `<div class="whitespace-pre-wrap">
+- [x] 完了項目
+- [ ] 未完了項目
+</div>`;
+    const dom = new JSDOM(html);
+    const root = dom.window.document.querySelector("div")!;
+    const { content } = parseUserMessage(root, 0);
+    expect(content).toContain("- [x] 完了項目");
+    expect(content).toContain("- [ ] 未完了項目");
+  });
+
+  it("parses code block with language", () => {
+    const html = `<div class="whitespace-pre-wrap">
+<pre class="overflow-x-auto"><code>ts
+const x = 1;</code></pre>
+</div>`;
+    const dom = new JSDOM(html);
+    const root = dom.window.document.querySelector("div")!;
+    const { content } = parseUserMessage(root, 0);
+    expect(content).toContain("```ts\nconst x = 1;\n```");
+  });
+
+    it("parses code block with no language", () => {
+    const html = `<div class="whitespace-pre-wrap">
+<pre class="overflow-x-auto"><code>
+const x = 1;</code></pre>
+</div>`;
+    const dom = new JSDOM(html);
+    const root = dom.window.document.querySelector("div")!;
+    const { content } = parseUserMessage(root, 0);
+    expect(content).toContain("```\nconst x = 1;\n```");
+  });
+
+  it("parses math block", () => {
+    const html = `<div class="whitespace-pre-wrap">
+<pre class="overflow-x-auto"><code>math
+a^2 + b^2 = c^2</code></pre>
+</div>`;
+    const dom = new JSDOM(html);
+    const root = dom.window.document.querySelector("div")!;
+    const { content } = parseUserMessage(root, 0);
+    expect(content).toContain("```math\na^2 + b^2 = c^2\n```");
+  });
+
+  it("parses blockquote from &gt;", () => {
+    const html = `<div class="whitespace-pre-wrap">&gt; これは引用です。</div>`;
+    const dom = new JSDOM(html);
+    const root = dom.window.document.querySelector("div")!;
+    const { content } = parseUserMessage(root, 0);
+    expect(content).toContain("> これは引用です。");
+  });
+
+  it("preserves markdown table", () => {
+    const html = `<div class="whitespace-pre-wrap">
+| 列A | 列B |
+|-----|-----|
+| 1   | 2   |
+</div>`;
+    const dom = new JSDOM(html);
+    const root = dom.window.document.querySelector("div")!;
+    const { content } = parseUserMessage(root, 0);
+    expect(content).toContain("| 列A | 列B |");
+    expect(content).toContain("| 1   | 2   |");
+  });
+
+  it("preserves markdown image", () => {
+    const html = `<div class="whitespace-pre-wrap">
+![図の説明](https://example.com/math.png)
+</div>`;
+    const dom = new JSDOM(html);
+    const root = dom.window.document.querySelector("div")!;
+    const { content } = parseUserMessage(root, 0);
+    expect(content).toContain("![図の説明](https://example.com/math.png)");
+  });
+
   it("converts DOM with various elements into markdown content", () => {
     const html = `
 <div class="whitespace-pre-wrap">## 見出しテスト
@@ -69,7 +154,7 @@ a^2 + b^2 = c^2
 そして画像です：
 
 ![図の説明](https://example.com/math.png)
-`
+`,
     });
   });
 });

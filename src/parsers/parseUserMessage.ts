@@ -19,21 +19,31 @@ function normalizeUserMarkdown(root: HTMLElement): string {
   const cloned = root.cloneNode(true) as HTMLElement;
 
   // pre > code を ```lang ... ``` に書き換える
-  for (const codeElem of cloned.querySelectorAll("pre > code")) {
-    const raw = codeElem.textContent || "";
-    const [lang, ...lines] = raw.trim().split("\n");
-    const code = lines.join("\n");
-    const md = `\`\`\`${lang}\n${code}\n\`\`\``;
+  for (const codeEl of cloned.querySelectorAll("pre > code")) {
+    const raw = codeEl.textContent || "";
+    const [firstLine, ...restLines] = raw.split("\n");
 
+    let lang: string | undefined;
+    let code: string;
+    if (restLines.length > 0 && knownLanguages.includes(firstLine.trim())) {
+      lang = firstLine.trim();
+      code = restLines.join("\n");
+    } else if(firstLine.length === 0) {
+      code = [...restLines].join("\n");
+    } else {
+      code = [firstLine, ...restLines].join("\n");
+    }
+
+    const md = lang ? `\`\`\`${lang}\n${code}\n\`\`\`` : `\`\`\`\n${code}\n\`\`\``;
     const textNode = document.createTextNode(md);
-    const pre = codeElem.closest("pre");
+    const pre = codeEl.closest("pre");
     if (pre && pre.parentNode) {
       pre.parentNode.replaceChild(textNode, pre);
-    }
+    }    
   }
 
   // エンティティをデコード
-  const content = decodeHtmlEntities(cloned.innerHTML)
+  const content = decodeHtmlEntities(cloned.innerHTML);
 
   return content;
 }
@@ -43,3 +53,57 @@ function decodeHtmlEntities(html: string): string {
   textarea.innerHTML = html;
   return textarea.value;
 }
+
+const knownLanguages = [
+  "bash",
+  "sh",
+  "zsh",
+  "c",
+  "cpp",
+  "csharp",
+  "css",
+  "scss",
+  "less",
+  "dart",
+  "dockerfile",
+  "go",
+  "html",
+  "xml",
+  "java",
+  "kotlin",
+  "javascript",
+  "js",
+  "jsx",
+  "json",
+  "lua",
+  "makefile",
+  "markdown",
+  "md",
+  "perl",
+  "php",
+  "plaintext",
+  "text",
+  "txt",
+  "powershell",
+  "ps1",
+  "python",
+  "py",
+  "ruby",
+  "rb",
+  "rust",
+  "rs",
+  "sql",
+  "swift",
+  "toml",
+  "yaml",
+  "yml",
+  "typescript",
+  "ts",
+  "tsx",
+  "vim",
+  "vue",
+  "wasm",
+  "xml",
+  "yaml",
+  "math", // ← GPT特有
+];
