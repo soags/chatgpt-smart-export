@@ -1,8 +1,6 @@
 export function normalizePreCodeBlocksUser(root: HTMLElement): void {
-  const cloned = root.cloneNode(true) as HTMLElement;
-
   // pre > code を ```lang ... ``` に書き換える
-  for (const codeEl of cloned.querySelectorAll("pre > code")) {
+  for (const codeEl of root.querySelectorAll("pre > code")) {
     const raw = (codeEl.textContent || "").trimStart();
     const [firstLine, ...restLines] = raw.split("\n");
     const first = firstLine.trim();
