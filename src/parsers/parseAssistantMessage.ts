@@ -1,28 +1,27 @@
 import TurndownService from "turndown";
 import { gfm } from "@joplin/turndown-plugin-gfm";
-import { AssistantMessage } from "../types";
+import { Message } from "../types";
 import {
   normalizeKaTeX,
   normalizeListIndent,
 } from "../utils/markdownNormalize";
 import { normalizePreCodeBlocksAssistant } from "../transforms/normalizePreCodeBlocksAssistant";
 import { normalizeTableAssistant } from "../transforms/normalizeTableAssistant";
-import { cleanupText } from "../minify/creanupText";
 
 export function parseAssistantMessage(
   root: Element,
   index: number,
   id?: string,
   model?: string
-): AssistantMessage {
+): Message {
   const cloned = root.cloneNode(true) as HTMLElement;
 
   normalizeKaTeX(cloned);
-  normalizeTableAssistant(cloned)
-  normalizePreCodeBlocksAssistant(cloned);  
+  normalizeTableAssistant(cloned);
+  normalizePreCodeBlocksAssistant(cloned);
 
   const markdown = htmlToMarkdown(cloned.innerHTML);
-  const content = cleanupText(normalizeListIndent(markdown));
+  const content = normalizeListIndent(markdown);
 
   return {
     index,
@@ -41,6 +40,11 @@ function htmlToMarkdown(html: string): string {
   });
 
   turndown.use(gfm);
+
+  turndown.addRule('hr', {
+    filter: 'hr',
+    replacement: () => '---'
+  });
 
   turndown.addRule("emphasis", {
     filter: ["em"],

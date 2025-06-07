@@ -4,20 +4,10 @@ export type ChatLog = {
   messages: Message[];
 };
 
-type Message = {
+export type Message = {
   index: number;
-  role: string;  
+  role: "user" | "assistant";
   content: string;
-  id?: string;  
-};
-
-export type MessageVariant = UserMessage | AssistantMessage
-
-export type UserMessage = Message & {
-  role: "user"
-}
-
-export type AssistantMessage = Message & {
-  role: "assistant",
+  id?: string;
   model?: string;
-}
+};
