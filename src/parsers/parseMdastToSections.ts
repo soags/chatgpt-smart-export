@@ -68,7 +68,7 @@ export function parseMdastToSections(html: string): SectionVariant[] {
 
         for (const item of l.children) {
           const li = item as ListItem;
-          const text = toString(li);
+          const text = toString(li).trim();
 
           if (typeof li.checked === "boolean") {
             checklistItems.push({

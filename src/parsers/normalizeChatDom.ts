@@ -12,6 +12,7 @@ export function normalizeChatDom(root: HTMLElement): HTMLElement {
       const newPre = document.createElement("pre");
       const newCode = document.createElement("code");
       newCode.textContent = codeText;
+      newCode.className = code.className || "";
       newPre.appendChild(newCode);
       pre.replaceWith(newPre);
     }
